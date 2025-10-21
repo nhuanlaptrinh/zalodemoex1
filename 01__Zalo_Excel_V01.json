@@ -1,0 +1,431 @@
+{
+  "name": "01. Zalo_Excel",
+  "nodes": [
+    {
+      "parameters": {
+        "inputText": "={{ $json.data.content }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Những thông điệp có ý nghĩa (Cần phản hồi)",
+              "description": "Bao gồm: Câu hỏi, yêu cầu, phản hồi rõ ràng cần được trả lời."
+            },
+            {
+              "category": "Tin nhắn không phù hợp (Thô tục/Nhạy cảm)",
+              "description": "Bao gồm: Ngôn ngữ thô tục, nội dung phản cảm hoặc chủ đề nhạy cảm/gây tranh cãi."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        240
+      ],
+      "id": "535e42de-c250-4a30-a463-41d76df64a17",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "593f613c-0692-43db-829c-b2546961cfd7",
+                    "leftValue": "={{ $('Zalo User Trigger').item.json.data.msgType }}",
+                    "rightValue": "webchat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Chat"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Zalo User Trigger').item.json.data.msgType }}",
+                    "rightValue": "chat.photo",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "00a6326f-480c-49a4-afc1-83783ff90ebc"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Photo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9e03dd92-64d0-4230-ae06-2ad7f996aae4",
+                    "leftValue": "={{ $('Zalo User Trigger').item.json.data.msgType }}",
+                    "rightValue": "chat.video.msg",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Video"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "50fa8978-a63e-41be-ab37-d52ff2f16f08",
+                    "leftValue": "={{ $('Zalo User Trigger').item.json.data.msgType }}",
+                    "rightValue": "chat.sticker",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Sticker"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9561b879-177e-47f1-859f-02ceeb31c5a3",
+                    "leftValue": "={{ $('Zalo User Trigger').item.json.data.msgType }}",
+                    "rightValue": "share.file",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "File"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -340,
+        20
+      ],
+      "id": "0f16dca5-b0d5-49c3-a967-294b3a3097f2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data.content }}",
+        "options": {
+          "systemMessage": "=#Tổng quan\n\nBạn là nhân viên bán hàng.\n\nBạn có quyền truy cập vào công cụ: Google Sheet.\n\nVui lòng giúp tôi trả lời câu hỏi của khách hàng.\n\nBạn vui lòng vào google sheet để kiểm tra xem câu hỏi của khách hàng có trung với cốt \"Câu hỏi\" trước nhé\n#Công cụ\n\nCâu hỏi thường gặp về Google Sheet: Sử dụng công cụ này để tìm câu trả lời trước, câu hỏi nằm ở cột \"Câu hỏi\".\n\n#Hướng dẫn\n\nNếu câu hỏi của khách hàng nằm trong Câu hỏi thường gặp về Google Sheet, hãy trả về nội dung từ cột \"Câu trả lời\" trong bảng mà không sửa đổi.\nNếu câu hỏi không nằm trong Câu hỏi thường gặp về Google Sheet, hãy cung cấp câu trả lời phù hợp bằng tiếng Việt dựa trên kiến ​​thức của bạn.\nLuôn trả lời bằng tiếng Việt.\n\n#Ghi chú cuối cùng\n\nToday is {{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b3e6efaa-2819-40ec-b4d0-66da958ffc8a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -120,
+        500
+      ],
+      "id": "e77d0846-da49-4343-a57b-ce0fcd67dbdb",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "BpciZCOgdpJ79QO1",
+          "name": "OpenAi account 15"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "1GCP8Hah45EsNR4aoA_YHilch6S58nBYYznvG_a9Ax4o",
+          "mode": "list",
+          "cachedResultName": "03. QA N8N",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GCP8Hah45EsNR4aoA_YHilch6S58nBYYznvG_a9Ax4o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1526323005,
+          "mode": "list",
+          "cachedResultName": "N8n_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GCP8Hah45EsNR4aoA_YHilch6S58nBYYznvG_a9Ax4o/edit#gid=1526323005"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        340,
+        480
+      ],
+      "id": "36223e2a-9ed1-498c-85c5-d629baf3838e",
+      "name": "Google Sheets FAQ",
+      "credentials": {
+        "googleApi": {
+          "id": "bdHEp2U1qaJxx7qq",
+          "name": "Google Service Account account 10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -600,
+        500
+      ],
+      "id": "4b38731e-2a8a-46f1-aa53-b61a5815d58f",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "BpciZCOgdpJ79QO1",
+          "name": "OpenAi account 15"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{$json.data.uidFrom}}-{{$json.data.msgId}}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        120,
+        480
+      ],
+      "id": "a2f0fd2a-737d-4da0-9495-0170761b6f9b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-zalo-user-v2.zaloUser",
+      "typeVersion": 2,
+      "position": [
+        -1060,
+        220
+      ],
+      "id": "b23299ed-cb7e-4185-90a6-d9a23fa66a98",
+      "name": "Zalo User Trigger",
+      "credentials": {
+        "zaloUserCredentialsApi": {
+          "id": "dqQ8IkLKFem7jXqA",
+          "name": "Zalo 764315709759373485 - 2025-05-26T02:19:55.027Z"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "threadId": "={{ $('Zalo User Trigger').item.json.data.uidFrom }}",
+        "message": "={{ $json.output }}"
+      },
+      "type": "n8n-nodes-zalo-user-v2.zaloUserInteract",
+      "typeVersion": 1,
+      "position": [
+        500,
+        0
+      ],
+      "id": "001651a3-5b28-44fd-a800-6c6cd7d9e953",
+      "name": "Zalo User Interact",
+      "credentials": {
+        "zaloUserCredentialsApi": {
+          "id": "dqQ8IkLKFem7jXqA",
+          "name": "Zalo 764315709759373485 - 2025-05-26T02:19:55.027Z"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets FAQ": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zalo User Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Zalo User Interact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "88f69a2f-a74b-48f0-b13d-6785e0ff7c7b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "94a383c02457267bcc44878635a0fa02b7d3206c5479bfc8890faa812e2bbd97"
+  },
+  "id": "dJpwndndpN2yhRsN",
+  "tags": []
+}
